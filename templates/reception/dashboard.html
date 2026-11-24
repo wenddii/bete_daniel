@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Receptionist Dashboard — {{ hotel_info.hotel_name|default:"Bete Daniel Hotel" }}{% endblock %}
+
+{% block content %}
+<section class="section section-alt" style="padding-top: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-border);">
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+          <span class="badge badge-gold">STAFF PORTAL</span>
+          <span style="font-size: 0.85rem; color: var(--color-text-muted);">Front Desk Operations</span>
+        </div>
+        <h1 class="section-title" style="font-size: 2rem; margin-bottom: 0;">Receptionist Dashboard</h1>
+      </div>
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <span style="font-size: 0.9rem; color: var(--color-text-muted);">
+          Logged in as <strong>{{ request.user.username }}</strong>
+        </span>
+        <a href="/admin/" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.82rem;">
+          Django Admin &rarr;
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top: 2rem;">
+  <div class="container">
+    <!-- Stat Counters Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2.5rem;">
+      <!-- Pending -->
+      <a href="?status=pending_review" style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 1.25rem; border-left: 4px solid var(--color-secondary); box-shadow: var(--shadow-subtle);">
+        <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text-muted); font-weight: 700; display: block;">
+          Pending Review
+        </span>
+        <span style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 700; color: var(--color-primary); display: block; margin: 0.25rem 0;">
+          {{ pending_count }}
+        </span>
+        <span style="font-size: 0.8rem; color: var(--color-text-muted);">Requires Room Assignment</span>
+      </a>
+
+      <!-- Awaiting Payment -->
+      <a href="?status=awaiting_payment" style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 1.25rem; border-left: 4px solid var(--color-secondary); box-shadow: var(--shadow-subtle);">
+        <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text-muted); font-weight: 700; display: block;">
+          Awaiting Payment
+        </span>
+        <span style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 700; color: var(--color-primary); display: block; margin: 0.25rem 0;">
+          {{ awaiting_count }}
+        </span>
+        <span style="font-size: 0.8rem; color: var(--color-text-muted);">Rooms held pending proof</span>
+      </a>
+
+      <!-- Confirmed -->
+      <a href="?status=confirmed" style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 1.25rem; border-left: 4px solid var(--color-primary); box-shadow: var(--shadow-subtle);">
+        <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text-muted); font-weight: 700; display: block;">
+          Confirmed Stays
+        </span>
+        <span style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 700; color: var(--color-secondary); display: block; margin: 0.25rem 0;">
+          {{ confirmed_count }}
+        </span>
+        <span style="font-size: 0.8rem; color: var(--color-text-muted);">Verified & ready</span>
+      </a>
+
+      <!-- Today's Arrivals -->
+      <a href="?status=today_arrivals" style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 1.25rem; border-left: 4px solid var(--color-secondary); box-shadow: var(--shadow-subtle);">
+        <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text-muted); font-weight: 700; display: block;">
+          Today's Arrivals
+        </span>
+        <span style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 700; color: var(--color-gold-hover); display: block; margin: 0.25rem 0;">
+          {{ today_arrivals_count }}
+        </span>
+        <span style="font-size: 0.8rem; color: var(--color-text-muted);">Check-in: {{ today }}</span>
+      </a>
+
+      <!-- Today's Departures -->
+      <a href="?status=today_departures" style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 1.25rem; border-left: 4px solid var(--color-primary); box-shadow: var(--shadow-subtle);">
+        <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text-muted); font-weight: 700; display: block;">
+          Today's Departures
+        </span>
+        <span style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 700; color: var(--color-primary); display: block; margin: 0.25rem 0;">
+          {{ today_departures_count }}
+        </span>
+        <span style="font-size: 0.8rem; color: var(--color-text-muted);">Check-out: {{ today }}</span>
+      </a>
+    </div>
+
+    <!-- Filter Tabs Navigation -->
+    <div style="display: flex; gap: 0.5rem; border-bottom: 2px solid var(--color-border); margin-bottom: 1.5rem; overflow-x: auto; padding-bottom: 2px;">
+      <a href="?status=pending_review" 
+         class="btn {% if status_filter == 'pending_review' %}btn-gold{% else %}btn-outline{% endif %}" 
+         style="padding: 0.5rem 1.1rem; font-size: 0.82rem; border-radius: var(--radius-sm) var(--radius-sm) 0 0;">
+        Pending Review ({{ pending_count }})
+      </a>
+      <a href="?status=awaiting_payment" 
+         class="btn {% if status_filter == 'awaiting_payment' %}btn-gold{% else %}btn-outline{% endif %}" 
+         style="padding: 0.5rem 1.1rem; font-size: 0.82rem; border-radius: var(--radius-sm) var(--radius-sm) 0 0;">
+        Awaiting Payment ({{ awaiting_count }})
+      </a>
+      <a href="?status=confirmed" 
+         class="btn {% if status_filter == 'confirmed' %}btn-gold{% else %}btn-outline{% endif %}" 
+         style="padding: 0.5rem 1.1rem; font-size: 0.82rem; border-radius: var(--radius-sm) var(--radius-sm) 0 0;">
+        Confirmed ({{ confirmed_count }})
+      </a>
+      <a href="?status=today_arrivals" 
+         class="btn {% if status_filter == 'today_arrivals' %}btn-gold{% else %}btn-outline{% endif %}" 
+         style="padding: 0.5rem 1.1rem; font-size: 0.82rem; border-radius: var(--radius-sm) var(--radius-sm) 0 0;">
+        Arrivals Today ({{ today_arrivals_count }})
+      </a>
+      <a href="?status=today_departures" 
+         class="btn {% if status_filter == 'today_departures' %}btn-gold{% else %}btn-outline{% endif %}" 
+         style="padding: 0.5rem 1.1rem; font-size: 0.82rem; border-radius: var(--radius-sm) var(--radius-sm) 0 0;">
+        Departures Today ({{ today_departures_count }})
+      </a>
+      <a href="?status=all" 
+         class="btn {% if status_filter == 'all' %}btn-gold{% else %}btn-outline{% endif %}" 
+         style="padding: 0.5rem 1.1rem; font-size: 0.82rem; border-radius: var(--radius-sm) var(--radius-sm) 0 0;">
+        All History
+      </a>
+    </div>
+
+    <!-- Bookings Table Card -->
+    <div class="contact-info-card" style="padding: 0; overflow: hidden;">
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
+          <thead>
+            <tr style="background: var(--color-surface-subtle); border-bottom: 1px solid var(--color-border); color: var(--color-text-muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em;">
+              <th style="padding: 1rem 1.25rem;">Reference</th>
+              <th style="padding: 1rem 1.25rem;">Guest</th>
+              <th style="padding: 1rem 1.25rem;">Category</th>
+              <th style="padding: 1rem 1.25rem;">Stay Dates</th>
+              <th style="padding: 1rem 1.25rem;">Room</th>
+              <th style="padding: 1rem 1.25rem;">Status</th>
+              <th style="padding: 1rem 1.25rem;">Payment</th>
+              <th style="padding: 1rem 1.25rem; text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for res in reservations %}
+            <tr style="border-bottom: 1px solid var(--color-border-subtle); transition: background 0.15s ease;">
+              <td style="padding: 1rem 1.25rem; font-weight: 700; color: var(--color-gold-hover);">
+                <a href="{% url 'reservations:reception_detail' res.id %}" style="text-decoration: underline;">
+                  {{ res.reservation_reference }}
+                </a>
+              </td>
+              <td style="padding: 1rem 1.25rem;">
+                <strong>{{ res.guest_name }}</strong>
+                <span style="color: var(--color-text-muted); font-size: 0.78rem; display: block;">{{ res.phone }} &bull; {{ res.email }}</span>
+              </td>
+              <td style="padding: 1rem 1.25rem;">
+                {{ res.room_category.name }}
+                <span style="color: var(--color-text-muted); font-size: 0.78rem; display: block;">{{ res.number_of_guests }} Guest{{ res.number_of_guests|pluralize }}</span>
+              </td>
+              <td style="padding: 1rem 1.25rem;">
+                {{ res.check_in|date:"M d" }} &rarr; {{ res.check_out|date:"M d, Y" }}
+                <span style="color: var(--color-text-muted); font-size: 0.78rem; display: block;">({{ res.total_nights }} night{{ res.total_nights|pluralize }})</span>
+              </td>
+              <td style="padding: 1rem 1.25rem;">
+                {% if res.assigned_room %}
+                  <strong style="color: var(--color-secondary-hover);">Room {{ res.assigned_room.room_number }}</strong>
+                {% else %}
+                  <span style="color: var(--color-text-muted); font-style: italic;">Unassigned</span>
+                {% endif %}
+              </td>
+              <td style="padding: 1rem 1.25rem;">
+                {% if res.status == 'pending_review' %}
+                  <span class="badge" style="background: var(--color-accent); color: var(--color-primary); font-weight: 700;">Pending Review</span>
+                {% elif res.status == 'awaiting_payment' %}
+                  <span class="badge" style="background: var(--color-accent); color: var(--color-primary); font-weight: 700;">Awaiting Payment</span>
+                {% elif res.status == 'confirmed' %}
+                  <span class="badge" style="background: var(--color-accent); color: var(--color-secondary-hover); font-weight: 700;">Confirmed</span>
+                {% elif res.status == 'expired' %}
+                  <span class="badge" style="background: var(--color-bg-alt); color: var(--color-text-muted);">Expired</span>
+                {% elif res.status == 'rejected' %}
+                  <span class="badge" style="background: var(--color-accent); color: var(--color-primary);">Rejected</span>
+                {% else %}
+                  <span class="badge">{{ res.get_status_display }}</span>
+                {% endif %}
+              </td>
+              <td style="padding: 1rem 1.25rem;">
+                {% with res.payment_proofs.count as p_count %}
+                  {% if p_count > 0 %}
+                    <span style="color: var(--color-secondary); font-weight: 600;">{{ p_count }} proof{{ p_count|pluralize }}</span>
+                  {% else %}
+                    <span style="color: var(--color-text-muted);">-</span>
+                  {% endif %}
+                {% endwith %}
+              </td>
+              <td style="padding: 1rem 1.25rem; text-align: right;">
+                <a href="{% url 'reservations:reception_detail' res.id %}" class="btn btn-outline" style="padding: 0.35rem 0.85rem; font-size: 0.8rem;">
+                  Manage &rarr;
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="8" style="padding: 3rem 1rem; text-align: center; color: var(--color-text-muted);">
+                <p style="font-size: 1.05rem; margin-bottom: 0.25rem;">No reservations found matching this filter.</p>
+                <small>Select "All History" or another tab to review existing records.</small>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

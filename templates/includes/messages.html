@@ -1,0 +1,10 @@
+{% if messages %}
+<div class="container messages-container" role="region" aria-label="System Notifications">
+  {% for message in messages %}
+  <div class="message-item {{ message.tags }}" role="alert">
+    <div class="message-text">{{ message }}</div>
+    <button type="button" class="message-dismiss" aria-label="Dismiss message">&times;</button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}

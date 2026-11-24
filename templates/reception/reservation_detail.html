@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Booking {{ reservation.reservation_reference }} — Reception Desk{% endblock %}
+
+{% block content %}
+<section class="section section-alt" style="padding-top: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--color-border);">
+  <div class="container">
+    <div style="font-size: 0.88rem; margin-bottom: 0.75rem;">
+      <a href="{% url 'reservations:reception_dashboard' %}" style="text-decoration: underline; color: var(--color-gold-hover);">
+        &larr; Back to Reception Dashboard
+      </a>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <span class="badge badge-gold">RESERVATION MANAGEMENT</span>
+        <h1 class="section-title" style="font-size: 1.85rem; margin-top: 0.25rem; margin-bottom: 0;">
+          {{ reservation.reservation_reference }} &bull; {{ reservation.guest_name }}
+        </h1>
+      </div>
+      <div>
+        {% if reservation.status == 'pending_review' %}
+          <span class="badge" style="background: var(--color-accent); color: var(--color-primary); font-size: 0.9rem; padding: 0.4rem 1rem; font-weight: 700;">Pending Review</span>
+        {% elif reservation.status == 'awaiting_payment' %}
+          <span class="badge" style="background: var(--color-accent); color: var(--color-primary); font-size: 0.9rem; padding: 0.4rem 1rem; font-weight: 700;">Awaiting Payment</span>
+        {% elif reservation.status == 'confirmed' %}
+          <span class="badge" style="background: var(--color-accent); color: var(--color-secondary-hover); font-size: 0.9rem; padding: 0.4rem 1rem; font-weight: 700;">Confirmed</span>
+        {% elif reservation.status == 'expired' %}
+          <span class="badge" style="background: var(--color-bg-alt); color: var(--color-text-muted); font-size: 0.9rem; padding: 0.4rem 1rem;">Expired</span>
+        {% elif reservation.status == 'rejected' %}
+          <span class="badge" style="background: var(--color-accent); color: var(--color-primary); font-size: 0.9rem; padding: 0.4rem 1rem;">Rejected</span>
+        {% else %}
+          <span class="badge">{{ reservation.get_status_display }}</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top: 2rem;">
+  <div class="container">
+    <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 2rem;" class="reception-detail-layout">
+      
+      <!-- Left Column: Booking & Stay Overview -->
+      <div>
+        <!-- Guest Details Card -->
+        <div class="contact-info-card" style="margin-bottom: 2rem;">
+          <h2 style="font-family: var(--font-serif); font-size: 1.3rem; margin-bottom: 1rem; color: var(--color-text);">
+            Guest & Stay Information
+          </h2>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.92rem;">
+            <div>
+              <strong style="display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-muted);">Guest Name:</strong>
+              {{ reservation.guest_name }}
+            </div>
+            <div>
+              <strong style="display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-muted);">Contact Phone:</strong>
+              <a href="tel:{{ reservation.phone }}" style="color: inherit; text-decoration: underline;">{{ reservation.phone }}</a>
+            </div>
+            <div>
+              <strong style="display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-muted);">Email Address:</strong>
+              <a href="mailto:{{ reservation.email }}" style="color: inherit; text-decoration: underline;">{{ reservation.email }}</a>
+            </div>
+            <div>
+              <strong style="display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-muted);">Party Size:</strong>
+              {{ reservation.number_of_guests }} Guest{{ reservation.number_of_guests|pluralize }}
+            </div>
+            <div>
+              <strong style="display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-muted);">Requested Category:</strong>
+              {{ reservation.room_category.name }}
+            </div>
+            <div>
+              <strong style="display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-muted);">Physical Room:</strong>
+              {% if reservation.assigned_room %}
+                <span style="font-weight: 700; color: var(--color-secondary-hover);">Room {{ reservation.assigned_room.room_number }}</span>
+              {% else %}
+                <span style="color: var(--color-text-muted); font-style: italic;">Not yet assigned</span>
+              {% endif %}
+            </div>
+            <div>
+              <strong style="display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-muted);">Check-in Date:</strong>
+              {{ reservation.check_in }}
+            </div>
+            <div>
+              <strong style="display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-muted);">Check-out Date:</strong>
+              {{ reservation.check_out }} ({{ reservation.total_nights }} night{{ reservation.total_nights|pluralize }})
+            </div>
+            <div>
+              <strong style="display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-muted);">Nightly Rate:</strong>
+              ${{ reservation.room_category.price_per_night }}
+            </div>
+            <div>
+              <strong style="display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-muted);">Total Cost:</strong>
+              <span style="font-size: 1.15rem; font-weight: 700; color: var(--color-gold-hover);">${{ reservation.total_price }}</span>
+            </div>
+          </div>
+
+          {% if reservation.special_requests %}
+          <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--color-border-subtle);">
+            <strong style="display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 0.25rem;">Special Requests:</strong>
+            <p style="font-size: 0.9rem; color: var(--color-text); background: var(--color-surface-subtle); padding: 0.75rem; border-radius: var(--radius-sm);">
+              {{ reservation.special_requests }}
+            </p>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Payment Screenshots Review Section -->
+        <div class="contact-info-card">
+          <h2 style="font-family: var(--font-serif); font-size: 1.3rem; margin-bottom: 1rem; color: var(--color-text);">
+            Payment Verification & Proofs ({{ payment_proofs.count }})
+          </h2>
+
+          {% if payment_proofs %}
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+              {% for proof in payment_proofs %}
+              <div style="background: var(--color-surface-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                  <div>
+                    <strong>Proof Submission #{{ proof.id }}</strong>
+                    <span style="color: var(--color-text-muted); font-size: 0.8rem; display: block;">
+                      Uploaded: {{ proof.uploaded_at|date:"Y-m-d H:i" }}
+                    </span>
+                  </div>
+                  <div>
+                    {% if proof.verification_status == 'verified' %}
+                      <span class="badge" style="background: var(--color-accent); color: var(--color-secondary-hover); font-weight: bold;">Verified</span>
+                    {% elif proof.verification_status == 'rejected' %}
+                      <span class="badge" style="background: var(--color-accent); color: var(--color-primary); font-weight: bold;">Rejected</span>
+                    {% else %}
+                      <span class="badge" style="background: var(--color-accent); color: var(--color-primary); font-weight: bold;">Pending Review</span>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <!-- Document Link (Staff Only Protected View) -->
+                <div style="margin-bottom: 1rem;">
+                  <a href="{% url 'reservations:payment_proof_document' proof.id %}" target="_blank" class="btn btn-outline" style="padding: 0.4rem 1rem; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <span>&#128065;</span> View Uploaded Document (Secure) &rarr;
+                  </a>
+                </div>
+
+                <!-- Verified By Info if applicable -->
+                {% if proof.verified_by %}
+                <p style="font-size: 0.82rem; color: var(--color-text-muted); margin-bottom: 0.5rem;">
+                  Reviewed by: <strong>{{ proof.verified_by.username }}</strong>
+                  {% if proof.verification_notes %}&bull; Notes: <em>"{{ proof.verification_notes }}"</em>{% endif %}
+                </p>
+                {% endif %}
+
+                <!-- Verification Action Form (only if reservation is not already completed) -->
+                {% if reservation.status == 'awaiting_payment' or reservation.status == 'pending_review' %}
+                <form method="post" action="{% url 'reservations:reception_verify_payment' proof.id %}" style="margin-top: 1rem; border-top: 1px solid var(--color-border-subtle); padding-top: 1rem;">
+                  {% csrf_token %}
+                  <div style="display: flex; gap: 1.5rem; margin-bottom: 0.75rem;">
+                    <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.88rem; cursor: pointer;">
+                      <input type="radio" name="verification_status" value="verified" {% if proof.verification_status == 'verified' %}checked{% endif %} required>
+                      <strong style="color: var(--color-secondary-hover);">Verify Payment</strong>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.88rem; cursor: pointer;">
+                      <input type="radio" name="verification_status" value="rejected" {% if proof.verification_status == 'rejected' %}checked{% endif %} required>
+                      <strong style="color: var(--color-primary);">Reject Screenshot</strong>
+                    </label>
+                  </div>
+
+                  <div style="margin-bottom: 0.75rem;">
+                    <input type="text" name="verification_notes" placeholder="Optional notes (e.g. CBE Transaction Ref verified)" value="{{ proof.verification_notes }}" style="width: 100%; padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm);">
+                  </div>
+
+                  <button type="submit" class="btn btn-outline" style="padding: 0.35rem 0.85rem; font-size: 0.82rem;">
+                    Update Proof Status
+                  </button>
+                </form>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div style="text-align: center; padding: 2rem; background: var(--color-surface-subtle); border-radius: var(--radius-sm); color: var(--color-text-muted);">
+              <p>No payment screenshots have been uploaded by the guest yet.</p>
+              {% if reservation.status == 'awaiting_payment' %}
+              <small>Payment Deadline: {{ reservation.payment_deadline|date:"Y-m-d H:i" }} UTC</small>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Right Column: Receptionist Decision & Actions -->
+      <div>
+        <!-- Action 1: Pending Approval & Physical Room Assignment -->
+        {% if reservation.status == 'pending_review' %}
+        <div class="contact-info-card" style="border-top: 4px solid var(--color-secondary); margin-bottom: 2rem;">
+          <h2 style="font-family: var(--font-serif); font-size: 1.3rem; margin-bottom: 0.5rem; color: var(--color-primary);">
+            Approve & Assign Physical Room
+          </h2>
+          <p style="font-size: 0.88rem; color: var(--color-text-muted); margin-bottom: 1.5rem;">
+            Assign an operational room from category <strong>{{ reservation.room_category.name }}</strong> for the stay dates ({{ reservation.check_in }} &rarr; {{ reservation.check_out }}).
+          </p>
+
+          {% if approval_form %}
+          <form method="post" action="{% url 'reservations:reception_approve' reservation.id %}">
+            {% csrf_token %}
+
+            <div style="margin-bottom: 1.25rem;">
+              <label style="display: block; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.35rem;">
+                Select Operational Room: <span style="color: var(--color-secondary);">*</span>
+              </label>
+              {{ approval_form.assigned_room }}
+              {% if approval_form.assigned_room.queryset.count == 0 %}
+                <div style="color: var(--color-primary); font-size: 0.85rem; margin-top: 0.4rem;">
+                  No operational rooms currently available in this category for these dates.
+                </div>
+              {% else %}
+                <small style="color: var(--color-text-muted); font-size: 0.8rem; display: block; margin-top: 0.25rem;">
+                  Available rooms: {{ approval_form.assigned_room.queryset.count }}
+                </small>
+              {% endif %}
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+              <label style="display: block; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.35rem;">
+                Payment Deadline (Hours from now):
+              </label>
+              {{ approval_form.deadline_hours }}
+              <small style="color: var(--color-text-muted); font-size: 0.8rem; display: block; margin-top: 0.25rem;">
+                Room will be held until deadline. Guest receives this deadline in their approval email.
+              </small>
+            </div>
+
+            <button type="submit" class="btn btn-gold" style="width: 100%; padding: 0.85rem;" {% if approval_form.assigned_room.queryset.count == 0 %}disabled{% endif %}>
+              Approve Request & Dispatch Payment Link &rarr;
+            </button>
+          </form>
+          {% endif %}
+
+          <!-- Rejection Section -->
+          <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border);">
+            <form method="post" action="{% url 'reservations:reception_reject' reservation.id %}">
+              {% csrf_token %}
+              <div style="margin-bottom: 0.75rem;">
+                <input type="text" name="rejection_reason" placeholder="Rejection reason (e.g. Sold out / Fully booked)" style="width: 100%; padding: 0.5rem; font-size: 0.85rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm);">
+              </div>
+              <button type="submit" class="btn btn-outline" style="width: 100%; color: var(--color-primary); border-color: var(--color-secondary-border); padding: 0.6rem;" onclick="return confirm('Are you sure you want to reject this booking request?');">
+                Reject Booking Request
+              </button>
+            </form>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Action 2: Confirming Awaiting Payment -->
+        {% if reservation.status == 'awaiting_payment' %}
+        <div class="contact-info-card" style="border-top: 4px solid var(--color-secondary); margin-bottom: 2rem;">
+          <h2 style="font-family: var(--font-serif); font-size: 1.3rem; margin-bottom: 0.5rem; color: var(--color-primary);">
+            Finalize & Confirm Booking
+          </h2>
+          <p style="font-size: 0.88rem; color: var(--color-text-muted); margin-bottom: 1.5rem;">
+            Assigned Room: <strong>Room {{ reservation.assigned_room.room_number }}</strong>.<br>
+            A reservation can only be confirmed after at least one payment proof screenshot is verified.
+          </p>
+
+          {% with reservation.payment_proofs.all as proofs %}
+            {% with reservation.payment_proofs.filter as verified_proofs %}
+            <form method="post" action="{% url 'reservations:reception_confirm' reservation.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-gold" style="width: 100%; padding: 0.85rem; font-size: 0.95rem;">
+                Confirm Reservation & Send Confirmation Email &rarr;
+              </button>
+            </form>
+            {% endwith %}
+          {% endwith %}
+
+          <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--color-border);">
+            <form method="post" action="{% url 'reservations:reception_reject' reservation.id %}">
+              {% csrf_token %}
+              <input type="hidden" name="rejection_reason" value="Payment not fulfilled or rejected by front desk">
+              <button type="submit" class="btn btn-outline" style="width: 100%; color: var(--color-primary); border-color: var(--color-secondary-border); padding: 0.5rem; font-size: 0.82rem;" onclick="return confirm('Cancel/reject this booking and release the assigned room?');">
+                Cancel / Release Room
+              </button>
+            </form>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Status 3: Confirmed Details -->
+        {% if reservation.status == 'confirmed' %}
+        <div class="contact-info-card" style="border-top: 4px solid var(--color-primary);">
+          <h2 style="font-family: var(--font-serif); font-size: 1.3rem; color: var(--color-secondary-hover); margin-bottom: 0.5rem;">
+            Booking Confirmed & Ready
+          </h2>
+          <p style="font-size: 0.88rem; color: var(--color-text-muted); margin-bottom: 1.25rem;">
+            Payment was verified and this reservation is finalized. The guest has received their official arrival confirmation.
+          </p>
+          <ul style="font-size: 0.88rem; line-height: 1.8; color: var(--color-text);">
+            <li><strong>Assigned:</strong> Room {{ reservation.assigned_room.room_number }}</li>
+            <li><strong>Arrival:</strong> {{ reservation.check_in }}</li>
+            <li><strong>Departure:</strong> {{ reservation.check_out }}</li>
+          </ul>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

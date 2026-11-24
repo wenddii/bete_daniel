@@ -1,0 +1,56 @@
+{% load static %}
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-top">
+      <!-- Col 1: Brand & Philosophy -->
+      <div>
+        <div class="footer-brand-title">{{ hotel_info.hotel_name|default:"Bete Daniel Hotel" }}</div>
+        <div class="footer-brand-tagline">Sanctuary of Hospitality</div>
+        <p class="footer-desc">
+          Refined comfort, authentic warmth, and serene hospitality in the heart of Addis Ababa. 
+          Dedicated to providing a quiet retreat for business and leisure travelers.
+        </p>
+      </div>
+
+      <!-- Col 2: Navigation Links -->
+      <div>
+        <h4 class="footer-col-title">Navigation</h4>
+        <ul class="footer-links-list">
+          <li><a href="{% url 'core:home' %}" class="footer-link">Home</a></li>
+          <li><a href="{% url 'rooms:category_list' %}" class="footer-link">Rooms & Suites</a></li>
+          <li><a href="{% url 'reservations:book' %}" class="footer-link">Book a Stay</a></li>
+          <li><a href="{% url 'core:home' %}#services" class="footer-link">Services & Amenities</a></li>
+          <li><a href="{% url 'core:home' %}#gallery" class="footer-link">Photo Gallery</a></li>
+          <li><a href="{% url 'core:home' %}#contact" class="footer-link">Location & Inquiries</a></li>
+          <li><a href="{% url 'reservations:reception_dashboard' %}" class="footer-link footer-link-staff">Reception Desk Portal &rarr;</a></li>
+        </ul>
+      </div>
+
+      <!-- Col 3: Direct Inquiries & Reception Hours -->
+      <div>
+        <h4 class="footer-col-title">Reception & Contact</h4>
+        <div class="footer-contact-item">
+          <strong>Address:</strong><br>
+          {{ hotel_info.address|default:"Bole Sub-City, Addis Ababa, Ethiopia" }}
+        </div>
+        <div class="footer-contact-item">
+          <strong>Direct Line:</strong><br>
+          <a href="tel:{{ hotel_info.phone }}" class="link-inherit">{{ hotel_info.phone|default:"+251 11 000 0000" }}</a>
+        </div>
+        <div class="footer-contact-item">
+          <strong>Email:</strong><br>
+          <a href="mailto:{{ hotel_info.email }}" class="link-inherit">{{ hotel_info.email|default:"info@betedanielhotel.com" }}</a>
+        </div>
+        <div class="footer-contact-item">
+          <strong>Front Desk Hours:</strong><br>
+          {{ hotel_info.reception_hours|default:"24/7 Front Desk" }}
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>&copy; {% now "Y" %} {{ hotel_info.hotel_name|default:"Bete Daniel Hotel" }}. All rights reserved.</div>
+      <div>Designed with classic hospitality and care.</div>
+    </div>
+  </div>
+</footer>

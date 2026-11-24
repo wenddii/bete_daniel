@@ -1,0 +1,36 @@
+{% load static %}
+<header class="site-header{% if request.resolver_match.url_name == 'home' %} site-header-home{% endif %}">
+  <div class="container navbar">
+    <!-- Brand -->
+    <a href="{% url 'core:home' %}" class="nav-brand" aria-label="Bete Daniel Hotel">
+      <span class="brand-mark" aria-hidden="true">BD</span>
+      <span class="brand-copy">
+        <span class="brand-title">{{ hotel_info.hotel_name|default:"Bete Daniel Hotel" }}</span>
+        <span class="brand-subtitle">Bahir Dar &bull; Hospitality</span>
+      </span>
+    </a>
+
+    <!-- Navigation Menu -->
+    <nav id="navMenu" class="nav-menu" aria-label="Primary Navigation">
+      <a href="{% url 'core:home' %}" class="nav-link{% if request.resolver_match.url_name == 'home' %} nav-link-active{% endif %}" {% if request.resolver_match.url_name == 'home' %}aria-current="page"{% endif %}>Home</a>
+      <a href="{% url 'rooms:category_list' %}" class="nav-link">Accommodations</a>
+      <a href="{% url 'core:home' %}#services" class="nav-link">Services</a>
+      <a href="{% url 'core:home' %}#gallery" class="nav-link">Gallery</a>
+      <a href="{% url 'core:home' %}#contact" class="nav-link">Contact</a>
+    </nav>
+
+    <!-- Header Action Button -->
+    <div class="nav-cta">
+      <a href="{% url 'reservations:book' %}" class="btn btn-gold">Book a Stay</a>
+    </div>
+
+    <!-- Mobile Navigation Toggle -->
+    <button id="navToggle" class="nav-toggle" aria-expanded="false" aria-controls="navMenu" aria-label="Toggle Navigation">
+      <span class="nav-toggle-icon">
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </span>
+    </button>
+  </div>
+</header>

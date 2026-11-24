@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Request Received — {{ reservation.reservation_reference }} — {{ hotel_info.hotel_name|default:"Bete Daniel Hotel" }}{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top: 4rem; padding-bottom: 4rem;">
+  <div class="container" style="max-width: 720px;">
+    <div class="contact-info-card" style="text-align: center; padding: 3rem 2rem;">
+      <div style="width: 64px; height: 64px; background: var(--color-gold-light); color: var(--color-gold-hover); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto; font-size: 1.8rem;">
+        &#10003;
+      </div>
+
+      <span class="section-eyebrow">BOOKING REQUEST RECEIVED</span>
+      <h1 class="section-title" style="margin-bottom: 0.5rem;">Thank You, {{ reservation.guest_name }}</h1>
+      <p class="section-subtitle" style="margin-bottom: 2rem;">
+        Your reservation request has been registered and is currently under review by our front desk.
+      </p>
+
+      <!-- Reference Code Box -->
+      <div style="background: var(--color-bg-alt); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 1.25rem; margin-bottom: 2rem;">
+        <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--color-text-muted); font-weight: 600;">
+          Your Booking Reference
+        </div>
+        <div style="font-family: var(--font-serif); font-size: 2rem; font-weight: 700; color: var(--color-gold-hover); letter-spacing: 0.05em; margin: 0.25rem 0;">
+          {{ reservation.reservation_reference }}
+        </div>
+        <div style="font-size: 0.85rem; color: var(--color-text-muted);">
+          Current Status: <span class="badge badge-gold">{{ reservation.get_status_display }}</span>
+        </div>
+      </div>
+
+      <!-- Stay Summary Table -->
+      <div style="text-align: left; background: var(--color-surface); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-sm); padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--font-serif); font-size: 1.15rem; margin-bottom: 1rem; border-bottom: 1px solid var(--color-border-subtle); padding-bottom: 0.5rem;">
+          Stay Summary
+        </h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; font-size: 0.92rem;">
+          <div>
+            <strong style="color: var(--color-text-muted); display: block; font-size: 0.78rem; text-transform: uppercase;">Room Category:</strong>
+            {{ reservation.room_category.name }}
+          </div>
+          <div>
+            <strong style="color: var(--color-text-muted); display: block; font-size: 0.78rem; text-transform: uppercase;">Physical Room:</strong>
+            <em>Assigned upon receptionist approval</em>
+          </div>
+          <div>
+            <strong style="color: var(--color-text-muted); display: block; font-size: 0.78rem; text-transform: uppercase;">Check-in:</strong>
+            {{ reservation.check_in }}
+          </div>
+          <div>
+            <strong style="color: var(--color-text-muted); display: block; font-size: 0.78rem; text-transform: uppercase;">Check-out:</strong>
+            {{ reservation.check_out }} ({{ reservation.total_nights }} night{{ reservation.total_nights|pluralize }})
+          </div>
+          <div>
+            <strong style="color: var(--color-text-muted); display: block; font-size: 0.78rem; text-transform: uppercase;">Guests:</strong>
+            {{ reservation.number_of_guests }} Guest{{ reservation.number_of_guests|pluralize }}
+          </div>
+          <div>
+            <strong style="color: var(--color-text-muted); display: block; font-size: 0.78rem; text-transform: uppercase;">Estimated Total:</strong>
+            <span style="font-weight: 700; color: var(--color-gold-hover);">${{ reservation.total_price }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Next Steps Timeline -->
+      <div style="text-align: left; background: var(--color-surface-subtle); border-radius: var(--radius-sm); padding: 1.5rem; margin-bottom: 2rem;">
+        <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--color-text); margin-bottom: 0.75rem;">
+          What Happens Next?
+        </h4>
+        <ol style="font-size: 0.88rem; color: var(--color-text-muted); line-height: 1.7; padding-left: 1.25rem; list-style: decimal;">
+          <li>Our reception staff verifies operational room availability for your dates and assigns your room.</li>
+          <li>You will receive an approval email at <strong>{{ reservation.email }}</strong> containing your assigned room and payment instructions.</li>
+          <li>Follow the secure link in your email to upload your bank transfer receipt before the payment deadline.</li>
+          <li>Once verified, your reservation status will become <strong>Confirmed</strong>.</li>
+        </ol>
+      </div>
+
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="{% url 'core:home' %}" class="btn btn-outline">Back to Homepage</a>
+        <a href="{% url 'rooms:category_list' %}" class="btn btn-gold">Browse Accommodations</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

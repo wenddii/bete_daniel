@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ category.name }} — {{ hotel_info.hotel_name|default:"Bete Daniel Hotel" }}{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top: 3rem;">
+  <div class="container">
+    <!-- Breadcrumb -->
+    <div style="font-size: 0.88rem; margin-bottom: 1.5rem; color: var(--color-text-muted);">
+      <a href="{% url 'core:home' %}" style="text-decoration: underline;">Home</a> &rarr; 
+      <a href="{% url 'rooms:category_list' %}" style="text-decoration: underline;">Accommodations</a> &rarr; 
+      <span style="color: var(--color-text); font-weight: 600;">{{ category.name }}</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 3rem; align-items: start;" class="category-detail-layout">
+      <!-- Media Showcase -->
+      <div>
+        <div style="border-radius: var(--radius-md); overflow: hidden; background: var(--color-bg-alt); height: 420px; box-shadow: var(--shadow-subtle); margin-bottom: 1rem;">
+          {% with images.first as primary %}
+            {% if primary %}
+              <img src="{{ primary.image.url }}" alt="{{ category.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+            {% else %}
+              <div class="room-media-placeholder" style="height: 100%;">
+                <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 64px; height: 64px;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.75a1.5 1.5 0 011.5-1.5h3a1.5 1.5 0 011.5 1.5V21" />
+                </svg>
+                <span class="placeholder-text" style="font-size: 1rem;">{{ category.name }}</span>
+              </div>
+            {% endif %}
+          {% endwith %}
+        </div>
+
+        {% if images.count > 1 %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 0.75rem;">
+          {% for img in images %}
+          <div style="height: 80px; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--color-border); cursor: pointer;">
+            <img src="{{ img.image.url }}" alt="{{ img.caption|default:category.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Category Specs & Booking Card -->
+      <div>
+        <div class="contact-info-card">
+          <span class="section-eyebrow">ROOM CATEGORY</span>
+          <h1 class="section-title" style="font-size: 2.2rem; margin-top: 0.25rem; margin-bottom: 0.5rem;">{{ category.name }}</h1>
+          
+          <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 1.5rem;">
+            <span class="price-amount" style="font-size: 2rem;">${{ category.price_per_night }}</span>
+            <span class="price-period" style="font-size: 0.9rem;">/ night (taxes included)</span>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+            <span class="badge badge-gold">Capacity: Up to {{ category.capacity }} Guest{{ category.capacity|pluralize }}</span>
+            <span class="badge">Category Selection</span>
+            <span class="badge">Room Assigned Upon Approval</span>
+          </div>
+
+          <div class="gold-divider" style="margin: 0 0 1.5rem 0;"></div>
+
+          <h3 style="font-family: var(--font-serif); font-size: 1.25rem; margin-bottom: 0.75rem;">Description & Amenities</h3>
+          <p style="color: var(--color-text-muted); line-height: 1.7; margin-bottom: 1.5rem;">
+            {{ category.description|default:"Impeccably maintained accommodation featuring premium mattress, fine linens, en-suite bathroom with hot shower, quiet climate control, high-speed Wi-Fi, and personalized room service." }}
+          </p>
+
+          <div style="background: var(--color-surface-subtle); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-sm); padding: 1.25rem; margin-bottom: 2rem;">
+            <h4 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--color-text);">How Booking Works:</h4>
+            <ol style="font-size: 0.88rem; color: var(--color-text-muted); line-height: 1.6; padding-left: 1.2rem; list-style: decimal;">
+              <li>Select your travel dates and submit your booking request.</li>
+              <li>Our reception team verifies availability and assigns an operational room.</li>
+              <li>You receive an email with your unique payment upload link and deadline.</li>
+              <li>Upload your bank transfer screenshot to confirm your reservation.</li>
+            </ol>
+          </div>
+
+          <a href="{% url 'reservations:book_category' category.id %}" class="btn btn-gold" style="width: 100%; font-size: 1rem; padding: 1rem 2rem;">
+            Book This Room Category &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

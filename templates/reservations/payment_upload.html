@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment Verification — {{ reservation.reservation_reference }} — {{ hotel_info.hotel_name|default:"Bete Daniel Hotel" }}{% endblock %}
+
+{% block content %}
+<section class="section section-alt" style="padding-top: 3rem; padding-bottom: 2rem;">
+  <div class="container text-center">
+    <span class="section-eyebrow">PAYMENT UPLOAD PORTAL</span>
+    <h1 class="section-title">Upload Payment Verification</h1>
+    <p class="section-subtitle" style="max-width: 640px; margin: 0 auto;">
+      Booking Reference: <strong>{{ reservation.reservation_reference }}</strong> &bull; Guest: {{ reservation.guest_name }}
+    </p>
+    <div class="gold-divider"></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container" style="max-width: 780px;">
+    <!-- Status Notices -->
+    {% if reservation.status == 'confirmed' %}
+    <div class="contact-info-card" style="text-align: center; border-top: 4px solid var(--color-secondary); padding: 2.5rem;">
+      <div style="font-size: 2.5rem; color: var(--color-secondary); margin-bottom: 0.5rem;">&#10003;</div>
+      <h2 style="font-family: var(--font-serif); font-size: 1.75rem; color: var(--color-secondary-hover); margin-bottom: 0.5rem;">
+        Reservation Confirmed
+      </h2>
+      <p style="color: var(--color-text-muted); font-size: 1rem; margin-bottom: 1.5rem;">
+        Your payment has been verified by our front desk. Your stay in <strong>Room {{ reservation.assigned_room.room_number }}</strong> is fully confirmed.
+      </p>
+      <div class="badge badge-gold" style="font-size: 0.88rem; padding: 0.4rem 1rem;">
+        Status: Confirmed &bull; Check-in: {{ reservation.check_in }}
+      </div>
+    </div>
+
+    {% elif reservation.status == 'expired' %}
+    <div class="contact-info-card" style="text-align: center; border-top: 4px solid var(--color-primary); padding: 2.5rem;">
+      <div style="font-size: 2.5rem; color: var(--color-primary); margin-bottom: 0.5rem;">&#9888;</div>
+      <h2 style="font-family: var(--font-serif); font-size: 1.75rem; color: var(--color-primary); margin-bottom: 0.5rem;">
+        Payment Deadline Expired
+      </h2>
+      <p style="color: var(--color-text-muted); font-size: 1rem; margin-bottom: 1.5rem;">
+        The payment deadline for this reservation has passed and the assigned room has been released. If you have already transferred funds, please contact our front desk immediately with your reference number.
+      </p>
+      <a href="tel:{{ hotel_info.phone }}" class="btn btn-gold">Call Front Desk Directly</a>
+    </div>
+
+    {% elif reservation.status == 'rejected' or reservation.status == 'cancelled' %}
+    <div class="contact-info-card" style="text-align: center; border-top: 4px solid var(--color-text-muted); padding: 2.5rem;">
+      <h2 style="font-family: var(--font-serif); font-size: 1.75rem; color: var(--color-text); margin-bottom: 0.5rem;">
+        Reservation {{ reservation.get_status_display }}
+      </h2>
+      <p style="color: var(--color-text-muted); font-size: 1rem; margin-bottom: 1.5rem;">
+        This booking request is no longer active.
+      </p>
+      <a href="{% url 'rooms:category_list' %}" class="btn btn-outline">Browse Accommodations</a>
+    </div>
+
+    {% else %}
+    <!-- Awaiting Payment Active State -->
+    <div class="contact-info-card" style="padding: 2.5rem; margin-bottom: 2rem;">
+      <!-- Deadline Banner -->
+      <div style="background-color: var(--color-accent); border: 1px solid var(--color-accent-border); border-radius: var(--radius-sm); padding: 1rem 1.25rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: gap;">
+        <div>
+          <span style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-primary); font-weight: 700; display: block;">
+            Payment Deadline
+          </span>
+          <span style="font-size: 1rem; color: var(--color-primary); font-weight: 600;">
+            {{ reservation.payment_deadline|date:"Y-m-d H:i" }} UTC
+          </span>
+        </div>
+        <div>
+          <span class="badge" style="background: var(--color-accent); color: var(--color-primary); border-color: var(--color-accent-border); font-size: 0.85rem;">
+            Assigned Room: Room {{ reservation.assigned_room.room_number }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Stay & Amount Summary -->
+      <h2 style="font-family: var(--font-serif); font-size: 1.35rem; margin-bottom: 1rem; color: var(--color-text);">
+        Stay Details & Amount Due
+      </h2>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; font-size: 0.92rem; background: var(--color-surface-subtle); padding: 1.25rem; border-radius: var(--radius-sm); margin-bottom: 2rem;">
+        <div>
+          <strong style="color: var(--color-text-muted); display: block; font-size: 0.78rem; text-transform: uppercase;">Category:</strong>
+          {{ reservation.room_category.name }}
+        </div>
+        <div>
+          <strong style="color: var(--color-text-muted); display: block; font-size: 0.78rem; text-transform: uppercase;">Assigned Room:</strong>
+          Room {{ reservation.assigned_room.room_number }}
+        </div>
+        <div>
+          <strong style="color: var(--color-text-muted); display: block; font-size: 0.78rem; text-transform: uppercase;">Dates:</strong>
+          {{ reservation.check_in }} &rarr; {{ reservation.check_out }} ({{ reservation.total_nights }} night{{ reservation.total_nights|pluralize }})
+        </div>
+        <div>
+          <strong style="color: var(--color-text-muted); display: block; font-size: 0.78rem; text-transform: uppercase;">Total Due:</strong>
+          <span style="font-size: 1.25rem; font-weight: 700; color: var(--color-gold-hover);">${{ reservation.total_price }}</span>
+        </div>
+      </div>
+
+      <!-- Bank Instructions -->
+      <h2 style="font-family: var(--font-serif); font-size: 1.35rem; margin-bottom: 1rem; color: var(--color-text);">
+        Bank Transfer Details
+      </h2>
+      <div style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 1.25rem; margin-bottom: 2rem;">
+        <p style="font-size: 0.92rem; color: var(--color-text-muted); margin-bottom: 1rem;">
+          Please deposit or transfer the total amount (${{ reservation.total_price }}) using the following hotel account:
+        </p>
+        <ul style="font-size: 0.92rem; line-height: 1.8; color: var(--color-text);">
+          <li><strong>Bank:</strong> Commercial Bank of Ethiopia (CBE)</li>
+          <li><strong>Account Name:</strong> {{ hotel_info.hotel_name|default:"Bete Daniel Hotel" }}</li>
+          <li><strong>Account Number:</strong> 1000123456789</li>
+          <li><strong>Transfer Reference:</strong> <span style="background: var(--color-gold-light); padding: 2px 6px; border-radius: 4px; font-weight: bold; color: var(--color-gold-hover);">{{ reservation.reservation_reference }}</span></li>
+        </ul>
+      </div>
+
+      <!-- Upload Form -->
+      <h2 style="font-family: var(--font-serif); font-size: 1.35rem; margin-bottom: 0.5rem; color: var(--color-text);">
+        Upload Transfer Screenshot / Receipt
+      </h2>
+      <p style="font-size: 0.88rem; color: var(--color-text-muted); margin-bottom: 1.5rem;">
+        After completing the deposit, take a screenshot or photo of the confirmation slip and upload it below.
+      </p>
+
+      {% if upload_form %}
+      <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        {% if upload_form.screenshot.errors %}
+        <div class="message-item error" style="margin-bottom: 1rem;">
+          {{ upload_form.screenshot.errors.0 }}
+        </div>
+        {% endif %}
+
+        <div style="margin-bottom: 1.5rem;">
+          {{ upload_form.screenshot }}
+          <small style="color: var(--color-text-muted); display: block; margin-top: 0.4rem; font-size: 0.82rem;">
+            Accepted formats: JPG, PNG, WebP, PDF. Max file size: 10MB.
+          </small>
+        </div>
+
+        <div style="background-color: var(--color-surface-subtle); border-left: 3px solid var(--color-gold); padding: 0.85rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; font-size: 0.85rem; color: var(--color-text-muted);">
+          <strong>Note:</strong> Uploading your receipt notifies our front desk. A staff member will inspect the transfer details and issue your official confirmation email.
+        </div>
+
+        <button type="submit" class="btn btn-gold" style="width: 100%; padding: 0.9rem;">
+          Upload Payment Screenshot &rarr;
+        </button>
+      </form>
+      {% endif %}
+
+      <!-- Previously Uploaded Proofs List -->
+      {% if existing_proofs %}
+      <div style="margin-top: 2.5rem; border-top: 1px solid var(--color-border); padding-top: 1.5rem;">
+        <h3 style="font-family: var(--font-serif); font-size: 1.15rem; margin-bottom: 1rem;">
+          Uploaded Proofs for This Booking
+        </h3>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          {% for proof in existing_proofs %}
+          <div style="display: flex; justify-content: space-between; align-items: center; background: var(--color-surface-subtle); padding: 0.85rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--color-border-subtle); font-size: 0.88rem;">
+            <div>
+              <strong>Submission #{{ proof.id }}</strong>
+              <span style="color: var(--color-text-muted); display: block; font-size: 0.8rem;">
+                Uploaded on {{ proof.uploaded_at|date:"Y-m-d H:i" }}
+              </span>
+            </div>
+            <div>
+              {% if proof.verification_status == 'verified' %}
+                <span class="badge" style="background: var(--color-accent); color: var(--color-secondary-hover); font-weight: bold;">Verified</span>
+              {% elif proof.verification_status == 'rejected' %}
+                <span class="badge" style="background: var(--color-accent); color: var(--color-primary); font-weight: bold;">Rejected</span>
+              {% else %}
+                <span class="badge" style="background: var(--color-accent); color: var(--color-primary); font-weight: bold;">Under Staff Review</span>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

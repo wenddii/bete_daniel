@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ hotel_info.hotel_name|default:"Bete Daniel Hotel" }} — Bahir Dar, Ethiopia{% endblock %}
+  </title>
+  <meta name="description"
+    content="{% block meta_description %}Experience refined comfort and authentic Ethiopian hospitality at Bete Daniel Hotel in Bahir Dar, Ethiopia.{% endblock %}">
+
+  <!-- Typography: Playfair Display (Serif) & Plus Jakarta Sans (Sans-serif) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Core Stylesheet -->
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+  <!-- Header & Navigation -->
+  {% include 'includes/navbar.html' %}
+
+  <!-- System Messages -->
+  {% include 'includes/messages.html' %}
+
+  <!-- Main Page Content -->
+  <main id="mainContent">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  {% include 'includes/footer.html' %}
+
+  <!-- Vanilla JavaScript -->
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+
+</html>

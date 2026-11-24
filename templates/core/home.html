@@ -1,0 +1,335 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+{{ hotel_info.hotel_name|default:"Bete Daniel Hotel" }} — Refined Hospitality in Bahir Dar, Ethiopia
+{% endblock %}
+
+{% block content %}
+<!-- =======================================================================
+     1. Hero Section
+     Displays the admin-selected hero photograph or a warm neutral container
+     ======================================================================= -->
+<section class="hero-section {% if hero_image %}hero-with-image{% else %}hero-neutral-fallback{% endif %}">
+  {% if hero_image %}
+  <div class="hero-background" aria-hidden="true"
+    style="background-image: url('{{ hero_image.image.url }}');"></div>
+  <div class="hero-overlay" aria-hidden="true"></div>
+  {% endif %}
+  <div class="container hero-content">
+    <div class="hero-copy">
+      <div class="hero-eyebrow">BETE DANIEL HOTEL &bull; BAHIR DAR, ETHIOPIA</div>
+      <h1 class="hero-title">
+        <span class="hero-title-primary">A Sanctuary of Warmth, Comfort &amp;</span>
+        <span class="hero-title-accent">Authentic Hospitality.</span>
+      </h1>
+      <div class="hero-divider" aria-hidden="true"></div>
+      <p class="hero-tagline">
+        Experience refined comfort and heartfelt Ethiopian hospitality. Thoughtfully designed accommodations and
+        attentive care create an environment of quiet rest.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- =======================================================================
+     2. About Section
+     Editorial introduction and hospitality pillars
+     ======================================================================= -->
+<section id="about" class="section about-section">
+  <div class="container">
+    <div class="about-card">
+      <span class="section-eyebrow">OUR PHILOSOPHY</span>
+      <h2 class="section-title">{{ hotel_info.about_title|default:"Welcome to Bete Daniel Hotel" }}</h2>
+      <div class="gold-divider"></div>
+
+      <p class="about-lead">
+        "Hospitality is not merely accommodation; it is the art of feeling genuinely at home."
+      </p>
+
+      <p class="about-text">
+        {{ hotel_info.about_description }}
+      </p>
+
+      <div class="about-pillars">
+        <div class="pillar-item">
+          <div class="pillar-icon">&#10022;</div>
+          <h3 class="pillar-title">Authentic Warmth</h3>
+          <p class="pillar-desc">True Ethiopian hosting grounded in respect, personalized attention, and genuine
+            kindness.</p>
+        </div>
+        <div class="pillar-item">
+          <div class="pillar-icon">&#10022;</div>
+          <h3 class="pillar-title">Peaceful Rest</h3>
+          <p class="pillar-desc">Calm, private living spaces designed to offer restful sleep after a full day in the
+            city.</p>
+        </div>
+        <div class="pillar-item">
+          <div class="pillar-icon">&#10022;</div>
+          <h3 class="pillar-title">Prime Access</h3>
+          <p class="pillar-desc">Centrally situated in Bole Sub-City, offering convenient proximity to key destinations.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =======================================================================
+     3. Room Categories Section
+     Fetched dynamically from the RoomCategory model
+     ======================================================================= -->
+<section id="rooms" class="section section-alt">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">ACCOMMODATIONS</span>
+      <h2 class="section-title">Rooms & Suites</h2>
+      <p class="section-subtitle">
+        Select your preferred room category. Upon confirmation, our front desk assigns a specific, pristine room
+        tailored to your stay.
+      </p>
+      <div class="gold-divider"></div>
+    </div>
+
+    {% if room_categories %}
+    <div class="rooms-grid">
+      {% for category in room_categories %}
+      <article class="room-card">
+        <div class="room-media-wrapper">
+          {% with category.images.first as primary_image %}
+          {% if primary_image %}
+          <img src="{{ primary_image.image.url }}" alt="{{ category.name }}" class="room-img" loading="lazy">
+          {% else %}
+          <!-- Clean neutral placeholder when no category photograph is uploaded yet -->
+          <div class="room-media-placeholder">
+            <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.75a1.5 1.5 0 011.5-1.5h3a1.5 1.5 0 011.5 1.5V21" />
+            </svg>
+            <span class="placeholder-text">{{ category.name }}</span>
+          </div>
+          {% endif %}
+          {% endwith %}
+        </div>
+
+        <div class="room-card-body">
+          <div class="room-header">
+            <h3 class="room-title">{{ category.name }}</h3>
+            <div class="room-price-tag">
+              <span class="price-amount">${{ category.price_per_night }}</span>
+              <span class="price-period">per night</span>
+            </div>
+          </div>
+
+          <div class="room-meta">
+            <span class="badge badge-gold">
+              Up to {{ category.capacity }} Guest{{ category.capacity|pluralize }}
+            </span>
+          </div>
+
+          <p class="room-desc">
+            {{ category.description|default:"Thoughtfully designed with plush bedding, dedicated workspace, and en-suite bath." }}
+          </p>
+
+          <div class="room-card-footer room-card-buttons">
+            <a href="{% url 'rooms:category_detail' category.id %}" class="btn btn-outline">Details</a>
+            <a href="{% url 'reservations:book_category' category.id %}" class="btn btn-gold">Book Category</a>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <!-- Clean neutral state if no room categories have been added yet -->
+    <div class="empty-state-card">
+      <h3 class="empty-state-title">Accommodations in Preparation</h3>
+      <p class="empty-state-desc">
+        Our room categories and seasonal rates are being updated. Please contact our reception desk directly for room
+        availability and personalized reservations.
+      </p>
+      <a href="#contact" class="btn btn-gold">Contact Reception</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- =======================================================================
+     4. Services & Amenities Section
+     Fetched dynamically from the Facility model
+     ======================================================================= -->
+<section id="services" class="section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">COMFORT & CONVENIENCE</span>
+      <h2 class="section-title">Services & Amenities</h2>
+      <p class="section-subtitle">
+        Everything you need for an effortless, enjoyable stay in Addis Ababa.
+      </p>
+      <div class="gold-divider"></div>
+    </div>
+
+    {% if facilities %}
+    <div class="facilities-grid">
+      {% for facility in facilities %}
+      <div class="facility-card">
+        {% if facility.image %}
+        <div class="facility-media">
+          <img src="{{ facility.image.url }}" alt="{{ facility.name }}" class="facility-img" loading="lazy">
+        </div>
+        {% endif %}
+        <h3 class="facility-title">{{ facility.name }}</h3>
+        <p class="facility-desc">{{ facility.description }}</p>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <!-- Clean neutral state if no services have been uploaded yet -->
+    <div class="empty-state-card">
+      <h3 class="empty-state-title">Services & Amenities</h3>
+      <p class="empty-state-desc">
+        Our curated list of on-site amenities and guest privileges will be detailed here shortly. Our front desk staff
+        remains available 24 hours a day to assist with any special requirements.
+      </p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- =======================================================================
+     5. Hotel Gallery Section
+     Fetched dynamically from GalleryImage records
+     ======================================================================= -->
+<section id="gallery" class="section section-alt">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">A VISUAL TOUR</span>
+      <h2 class="section-title">Hotel Gallery</h2>
+      <p class="section-subtitle">
+        Authentic photographs showcasing our property, hospitality spaces, and guest rooms.
+      </p>
+      <div class="gold-divider"></div>
+    </div>
+
+    {% if gallery_images %}
+    <div class="gallery-grid">
+      {% for photo in gallery_images %}
+      <figure class="gallery-card">
+        <img src="{{ photo.image.url }}"
+          alt="{{ photo.title|default:photo.caption|default:'Bete Daniel Hotel Photograph' }}" class="gallery-card-img"
+          loading="lazy">
+        {% if photo.title or photo.caption %}
+        <figcaption class="gallery-card-caption">
+          {% if photo.title %}<div class="gallery-caption-title">{{ photo.title }}</div>{% endif %}
+          {% if photo.caption %}<div class="gallery-caption-sub">{{ photo.caption }}</div>{% endif %}
+        </figcaption>
+        {% endif %}
+      </figure>
+      {% endfor %}
+    </div>
+    {% else %}
+    <!-- Clean neutral state when no gallery photographs have been uploaded yet -->
+    <div class="empty-state-card">
+      <h3 class="empty-state-title">Gallery Being Curated</h3>
+      <p class="empty-state-desc">
+        Official photographs of our property and suites will appear here as soon as they are uploaded.
+      </p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- =======================================================================
+     6. Location & Contact Section
+     Using dynamic hotel profile and contact data
+     ======================================================================= -->
+<section id="contact" class="section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">GET IN TOUCH</span>
+      <h2 class="section-title">Location & Contact</h2>
+      <p class="section-subtitle">
+        Our team is ready to assist you with booking inquiries, arrival directions, and special requests.
+      </p>
+      <div class="gold-divider"></div>
+    </div>
+
+    <div class="contact-grid">
+      <!-- Contact Details -->
+      <div class="contact-info-card">
+        <span class="badge badge-gold">DIRECT RECEPTION</span>
+        <h3 class="contact-card-title">Front Desk & Concierge</h3>
+        <p class="contact-card-desc">
+          Connect directly with our hospitality team for bookings and personalized assistance.
+        </p>
+
+        <div class="contact-detail-list">
+          <div class="contact-detail-item">
+            <div class="contact-icon-box">&#9678;</div>
+            <div>
+              <div class="contact-label">Hotel Address</div>
+              <div class="contact-value">{{ hotel_info.address|default:"Bole Sub-City, Addis Ababa, Ethiopia" }}</div>
+            </div>
+          </div>
+
+          <div class="contact-detail-item">
+            <div class="contact-icon-box">&#9742;</div>
+            <div>
+              <div class="contact-label">Telephone</div>
+              <div class="contact-value">
+                <a href="tel:{{ hotel_info.phone }}" class="link-inherit">
+                  {{ hotel_info.phone|default:"+251 11 000 0000" }}
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="contact-detail-item">
+            <div class="contact-icon-box">&#9993;</div>
+            <div>
+              <div class="contact-label">Email Inquiries</div>
+              <div class="contact-value">
+                <a href="mailto:{{ hotel_info.email }}" class="link-inherit">
+                  {{ hotel_info.email|default:"info@betedanielhotel.com" }}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stay Schedule & Reception Hours -->
+      <div class="contact-schedule-card">
+        <div>
+          <span class="badge badge-dark">
+            GUEST SCHEDULE
+          </span>
+          <h3 class="schedule-header-title">Check-in & Check-out</h3>
+          <p class="schedule-header-desc">
+            To ensure your room is impeccably prepared, we adhere to the following standard arrival and departure times:
+          </p>
+
+          <div class="schedule-box">
+            <div class="schedule-box-item">
+              <div class="schedule-label">Check-in From</div>
+              <div class="schedule-time">{{ hotel_info.check_in_time|default:"2:00 PM" }}</div>
+            </div>
+            <div class="schedule-box-item">
+              <div class="schedule-label">Check-out By</div>
+              <div class="schedule-time">{{ hotel_info.check_out_time|default:"11:00 AM" }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="front-desk-hours">
+            Front Desk Availability: <strong>{{ hotel_info.reception_hours|default:"24/7 Front Desk" }}</strong>
+          </div>
+          <a href="tel:{{ hotel_info.phone }}" class="btn btn-gold btn-block">
+            Call Front Desk Directly
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

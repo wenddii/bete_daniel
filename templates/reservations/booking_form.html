@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Book a Stay — {{ hotel_info.hotel_name|default:"Bete Daniel Hotel" }}{% endblock %}
+
+{% block content %}
+<section class="section section-alt" style="padding-top: 3rem; padding-bottom: 2rem;">
+  <div class="container text-center">
+    <span class="section-eyebrow">RESERVATIONS</span>
+    <h1 class="section-title">Request a Room Reservation</h1>
+    <p class="section-subtitle" style="max-width: 640px; margin: 0 auto;">
+      Select your preferred room category and stay dates. Our front desk reviews every request to ensure your room is impeccably prepared before assigning your physical room number.
+    </p>
+    <div class="gold-divider"></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container" style="max-width: 780px;">
+    <div class="contact-info-card" style="padding: 2.5rem;">
+      <form method="post" novalidate id="bookingForm">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="message-item error" style="margin-bottom: 1.5rem;">
+          <div>
+            {% for error in form.non_field_errors %}
+              <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Step 1: Stay Details -->
+        <h2 style="font-family: var(--font-serif); font-size: 1.4rem; margin-bottom: 1rem; color: var(--color-text);">
+          1. Stay Details & Room Category
+        </h2>
+
+        <div style="margin-bottom: 1.5rem;">
+          <label for="{{ form.room_category.id_for_label }}" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.35rem;">
+            Room Category <span style="color: var(--color-secondary);">*</span>
+          </label>
+          {{ form.room_category }}
+          {% if form.room_category.help_text %}
+          <small style="color: var(--color-text-muted); font-size: 0.8rem; display: block; margin-top: 0.25rem;">
+            {{ form.room_category.help_text }} (Note: Physical room number is assigned upon review).
+          </small>
+          {% endif %}
+          {% if form.room_category.errors %}
+          <div style="color: var(--color-primary); font-size: 0.85rem; margin-top: 0.25rem;">
+            {{ form.room_category.errors.0 }}
+          </div>
+          {% endif %}
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem;" class="form-row-dates">
+          <div>
+            <label for="{{ form.check_in.id_for_label }}" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.35rem;">
+              Check-in Date <span style="color: var(--color-secondary);">*</span>
+            </label>
+            {{ form.check_in }}
+            {% if form.check_in.errors %}
+            <div style="color: var(--color-primary); font-size: 0.85rem; margin-top: 0.25rem;">
+              {{ form.check_in.errors.0 }}
+            </div>
+            {% endif %}
+          </div>
+
+          <div>
+            <label for="{{ form.check_out.id_for_label }}" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.35rem;">
+              Check-out Date <span style="color: var(--color-secondary);">*</span>
+            </label>
+            {{ form.check_out }}
+            {% if form.check_out.errors %}
+            <div style="color: var(--color-primary); font-size: 0.85rem; margin-top: 0.25rem;">
+              {{ form.check_out.errors.0 }}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div style="margin-bottom: 2rem;">
+          <label for="{{ form.number_of_guests.id_for_label }}" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.35rem;">
+            Number of Guests <span style="color: var(--color-secondary);">*</span>
+          </label>
+          {{ form.number_of_guests }}
+          {% if form.number_of_guests.help_text %}
+          <small style="color: var(--color-text-muted); font-size: 0.8rem; display: block; margin-top: 0.25rem;">
+            {{ form.number_of_guests.help_text }}
+          </small>
+          {% endif %}
+          {% if form.number_of_guests.errors %}
+          <div style="color: var(--color-primary); font-size: 0.85rem; margin-top: 0.25rem;">
+            {{ form.number_of_guests.errors.0 }}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Step 2: Guest Information -->
+        <h2 style="font-family: var(--font-serif); font-size: 1.4rem; margin-bottom: 1rem; color: var(--color-text);">
+          2. Primary Guest Information
+        </h2>
+
+        <div style="margin-bottom: 1.25rem;">
+          <label for="{{ form.guest_name.id_for_label }}" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.35rem;">
+            Full Name <span style="color: var(--color-secondary);">*</span>
+          </label>
+          {{ form.guest_name }}
+          {% if form.guest_name.errors %}
+          <div style="color: var(--color-primary); font-size: 0.85rem; margin-top: 0.25rem;">
+            {{ form.guest_name.errors.0 }}
+          </div>
+          {% endif %}
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem;" class="form-row-contact">
+          <div>
+            <label for="{{ form.email.id_for_label }}" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.35rem;">
+              Email Address <span style="color: var(--color-secondary);">*</span>
+            </label>
+            {{ form.email }}
+            {% if form.email.errors %}
+            <div style="color: var(--color-primary); font-size: 0.85rem; margin-top: 0.25rem;">
+              {{ form.email.errors.0 }}
+            </div>
+            {% endif %}
+          </div>
+
+          <div>
+            <label for="{{ form.phone.id_for_label }}" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.35rem;">
+              Phone Number <span style="color: var(--color-secondary);">*</span>
+            </label>
+            {{ form.phone }}
+            {% if form.phone.errors %}
+            <div style="color: var(--color-primary); font-size: 0.85rem; margin-top: 0.25rem;">
+              {{ form.phone.errors.0 }}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div style="margin-bottom: 2rem;">
+          <label for="{{ form.special_requests.id_for_label }}" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.35rem;">
+            Special Requests (Optional)
+          </label>
+          {{ form.special_requests }}
+          {% if form.special_requests.errors %}
+          <div style="color: var(--color-primary); font-size: 0.85rem; margin-top: 0.25rem;">
+            {{ form.special_requests.errors.0 }}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Workflow Notice Box -->
+        <div style="background-color: var(--color-surface-subtle); border-left: 3px solid var(--color-gold); padding: 1rem 1.25rem; border-radius: var(--radius-sm); margin-bottom: 2rem; font-size: 0.88rem; color: var(--color-text-muted); line-height: 1.6;">
+          <strong>No Payment Required Right Now:</strong> After you submit this request, our receptionist will review availability and assign your room. You will receive an approval email with your unique payment upload link and deadline.
+        </div>
+
+        <button type="submit" class="btn btn-gold" style="width: 100%; font-size: 1rem; padding: 1rem;">
+          Submit Booking Request &rarr;
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
