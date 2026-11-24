@@ -1,8 +1,29 @@
 import os
 from pathlib import Path
 
+import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
+from dotenv import load_dotenv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load local settings without overriding environment variables supplied by the host.
+load_dotenv(BASE_DIR / '.env')
+
+
+def _env_bool(name, default=False):
+    value = os.getenv(name)
+    if value is None:
+        return default
+
+    normalized = value.strip().lower()
+    if normalized in {'1', 'true', 'yes', 'on'}:
+        return True
+    if normalized in {'0', 'false', 'no', 'off'}:
+        return False
+    raise ImproperlyConfigured(f'{name} must be a boolean value.')
+
 
 # Application definition
 INSTALLED_APPS = [
@@ -59,6 +80,46 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+DATABASE_URL = os.getenv('DATABASE_URL', '').strip()
+if DATABASE_URL:
+    database_conn_max_age = 0 if os.getenv('VERCEL') == '1' else 600
+    try:
+        DATABASES['default'] = dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=database_conn_max_age,
+            conn_health_checks=True,
+            ssl_require=True,
+        )
+    except ValueError as exc:
+        raise ImproperlyConfigured('DATABASE_URL is not a valid database URL.') from exc
+
+USE_CLOUDINARY = _env_bool('USE_CLOUDINARY', default=False)
+if USE_CLOUDINARY:
+    cloudinary_credentials = {
+        'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME', '').strip(),
+        'API_KEY': os.getenv('CLOUDINARY_API_KEY', '').strip(),
+        'API_SECRET': os.getenv('CLOUDINARY_API_SECRET', '').strip(),
+    }
+    missing_cloudinary_credentials = [
+        key for key, value in cloudinary_credentials.items() if not value
+    ]
+    if missing_cloudinary_credentials:
+        raise ImproperlyConfigured(
+            'Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and '
+            'CLOUDINARY_API_SECRET when USE_CLOUDINARY is enabled.'
+        )
+
+    INSTALLED_APPS += ['cloudinary_storage', 'cloudinary']
+    CLOUDINARY_STORAGE = cloudinary_credentials
+    STORAGES = {
+        'default': {
+            'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',
+        },
+        'staticfiles': {
+            'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+        },
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators

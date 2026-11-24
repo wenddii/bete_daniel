@@ -1,7 +1,13 @@
 import os
+from django.core.exceptions import ImproperlyConfigured
 from .base import *
 
 DEBUG = False
+
+if not DATABASE_URL:
+    raise ImproperlyConfigured(
+        'DATABASE_URL must be set for production; SQLite is not supported on Vercel.'
+    )
 
 # Production secret key sourced from environment variable
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
