@@ -4,6 +4,11 @@ import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
 from .base import *
 
+if not USE_CLOUDINARY:
+    raise ImproperlyConfigured(
+        'USE_CLOUDINARY must be enabled in production.'
+    )
+
 DEBUG = False
 
 if not DATABASE_URL:
