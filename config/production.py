@@ -1,4 +1,6 @@
 import os
+
+import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
 from .base import *
 
@@ -7,6 +9,21 @@ DEBUG = False
 if not DATABASE_URL:
     raise ImproperlyConfigured(
         'DATABASE_URL must be set for production; SQLite is not supported on Vercel.'
+    )
+
+try:
+    DATABASES['default'] = dj_database_url.parse(
+        DATABASE_URL,
+        conn_max_age=0,
+        conn_health_checks=True,
+        ssl_require=True,
+    )
+except ValueError as exc:
+    raise ImproperlyConfigured('DATABASE_URL is not a valid database URL.') from exc
+
+if DATABASES['default']['ENGINE'] != 'django.db.backends.postgresql':
+    raise ImproperlyConfigured(
+        'Production DATABASE_URL must configure a PostgreSQL database.'
     )
 
 # Production secret key sourced from environment variable
